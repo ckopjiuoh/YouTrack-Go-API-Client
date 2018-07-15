@@ -1,23 +1,27 @@
-package ytclient
+package ytapi
 
 import (
 	"fmt"
+	"net/url"
 	"time"
 )
 
-func (c *YouTrackClient) HealthCheck() error {
-	r, err := c.SendRequest(&Request{
-		"",
+func (c *YouTrackAPI) HealthCheck() error {
+	r, err := c.MakeRequest(&Request{
+		&url.Values{},
 		"/rest/admin/project",
-		"get",
+		GET,
+		nil,
+		nil,
 	})
 
 	if err != nil {
 		return err
 	}
 
-	if r.StatusCode() != 200 {
-		return fmt.Errorf("%v, Request: %s, %s, Response status: %d, %v", time.Now().Format(time.RFC822), r.Request.Method, r.Request.URL, r.StatusCode(), string(r.Body()))
+	if r.StatusCode != 200 {
+		return fmt.Errorf("%v, Request: %s, %s, Response status: %d", time.Now().Format(time.RFC822), r.Request.Method, r.Request.URL, r.StatusCode)
 	}
+
 	return nil
 }

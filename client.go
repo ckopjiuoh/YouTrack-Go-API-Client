@@ -1,72 +1,90 @@
-package ytclient
+package ytapi
 
 import (
-	"github.com/go-resty/resty"
-	"strings"
+	"io"
 	"log"
+	"net/http"
+	"net/url"
 	"time"
-	"errors"
 )
 
-type YouTrackClient struct {
-	Token string
-	Addr  string
-	Debug bool
+const (
+	GET    = "GET"
+	POST   = "POST"
+	PUT    = "PUT"
+	DELETE = "DELETE"
+)
+
+type YouTrackAPI struct {
+	Token  string
+	Addr   string
+	Debug  bool
+	Client *http.Client
 }
 
 type Request struct {
-	QueryParams string
+	QueryParams *url.Values
 	Endpoint    string
 	Method      string
+	Headers     map[string]string
+	Body        io.Reader
 }
 
-func NewYouTrackClient(token, addr string, debug bool) (*YouTrackClient, error) {
-	client := &YouTrackClient{Token: token, Addr: addr, Debug: debug}
-	if err := client.HealthCheck(); err != nil {
+type Response struct {
+}
+
+func NewYouTrackAPIWithClient(token, addr string, client *http.Client, debug bool) (*YouTrackAPI, error) {
+	ytclient := &YouTrackAPI{Token: token, Addr: addr, Client: client, Debug: debug}
+	if err := ytclient.HealthCheck(); err != nil {
 		return nil, err
 	}
 
-	return client, nil
+	return ytclient, nil
 }
 
-func (c *YouTrackClient) debugLog(context string, req *resty.Request, res *resty.Response) {
+func NewYouTrackAPI(token, addr string, debug bool) (*YouTrackAPI, error) {
+	return NewYouTrackAPIWithClient(token, addr, &http.Client{}, debug)
+}
+
+func (c *YouTrackAPI) debugLog(context string, req *http.Request, res *http.Response) {
 	if c.Debug {
 		log.Println(context)
 		if req != nil {
 			log.Printf("%v Request: %s %s", time.Now().Format(time.RFC822), req.Method, req.URL)
 		}
 		if res != nil {
-			log.Printf("%v Response: %s %s", time.Now().Format(time.RFC822), req.Method, req.URL)
+			log.Printf("%v Response: %d", time.Now().Format(time.RFC822), res.StatusCode)
 		}
 	}
 }
 
-func (c *YouTrackClient) SendRequest(request *Request) (*resty.Response, error) {
-	r := resty.R().
-		SetAuthToken(c.Token).
-		SetQueryString(request.QueryParams).
-		SetHeader("Accept", "application/json")
-
-	resp := &resty.Response{}
-	var err error
-	switch strings.ToLower(request.Method) {
-	case "get":
-		resp, err = r.Get(c.Addr + request.Endpoint)
-	case "post":
-		resp, err = r.Post(c.Addr + request.Endpoint)
-	case "put":
-		resp, err = r.Post(c.Addr + request.Endpoint)
-	case "delete":
-		resp, err = r.Post(c.Addr + request.Endpoint)
-	default:
-		err = errors.New("method of request is wrong")
-		c.debugLog(err.Error(), r, nil)
-		return nil, err
-	}
+func (api *YouTrackAPI) MakeRequest(request *Request) (*http.Response, error) {
+	req, err := http.NewRequest(
+		request.Method,
+		api.Addr+request.Endpoint+request.QueryParams.Encode(),
+		request.Body,
+	)
 
 	if err != nil {
+		api.debugLog(err.Error(), nil, nil)
 		return nil, err
 	}
 
-	return resp, nil
+	// Add auth header
+	req.Header.Add("Authorization", "Bearer "+api.Token)
+	req.Header.Add("Accept", "application/json")
+
+	for k, v := range request.Headers {
+		req.Header.Add(k, v)
+	}
+
+	res, err := api.Client.Do(req)
+
+	if err != nil {
+		api.debugLog(err.Error(), req, res)
+		return nil, err
+	}
+
+	api.debugLog("Success", req, res)
+	return res, err
 }

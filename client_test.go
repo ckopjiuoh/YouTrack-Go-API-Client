@@ -1,14 +1,14 @@
-package ytclient
+package ytapi
 
 import (
-	"testing"
-	"net/http/httptest"
-	"net/http"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 )
 
 func TestNewYouTrackClient_Negative(t *testing.T) {
-	_, err := NewYouTrackClient(
+	_, err := NewYouTrackAPI(
 		"some",
 		"http://127.0.0.1",
 		true,
@@ -28,7 +28,7 @@ func TestNewYouTrackClient_Positive(t *testing.T) {
 
 	defer ts.Close()
 
-	_, err := NewYouTrackClient(
+	_, err := NewYouTrackAPI(
 		"some",
 		ts.URL,
 		true,
@@ -49,7 +49,7 @@ func TestNewYouTrackClient_Negative_WrongStatusCode(t *testing.T) {
 
 	defer ts.Close()
 
-	_, err := NewYouTrackClient(
+	_, err := NewYouTrackAPI(
 		"some",
 		ts.URL,
 		true,
