@@ -2,6 +2,7 @@ package ytapi
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"time"
 )
@@ -13,7 +14,7 @@ func (c *YouTrackAPI) HealthCheck() error {
 		GET,
 		nil,
 		nil,
-	})
+	}, http.StatusOK)
 
 	if err != nil {
 		return err

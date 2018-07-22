@@ -3,11 +3,11 @@ package ytapi
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
-
-	"strings"
-
+	"os"
 	"strconv"
+	"strings"
 
 	"github.com/ckopjiuoh/go-youtrack-api-client/helpers"
 )
@@ -98,6 +98,7 @@ func (api *YouTrackAPI) GetAnIssue(name string) (*Issue, error) {
 			nil,
 			nil,
 		},
+		http.StatusOK,
 	)
 
 	if e != nil {
@@ -124,4 +125,109 @@ func (api *YouTrackAPI) GetAnIssue(name string) (*Issue, error) {
 	}
 
 	return &issue, nil
+}
+
+func (api *YouTrackAPI) CreateIssue(project, summary, description, permittedGroup string, attachments []os.File) error {
+	query := &url.Values{}
+	query.Add("project", project)
+	query.Add("summary", summary)
+	query.Add("description", description)
+
+	if permittedGroup != "" {
+		query.Set("permittedGroup", permittedGroup)
+	}
+
+	//todo add attchments multipart
+	_, e := api.MakeRequest(
+		&Request{
+			query,
+			"/rest/issue?",
+			PUT,
+			nil,
+			nil,
+		},
+		http.StatusCreated,
+	)
+
+	if e != nil {
+		return e
+	}
+
+	return nil
+}
+
+func (api *YouTrackAPI) GetIssueHistory(name string) ([]*Issue, error) {
+	r, e := api.MakeRequest(
+		&Request{
+			&url.Values{},
+			fmt.Sprintf("/rest/issue/%s/history", strings.ToUpper(name)),
+			GET,
+			nil,
+			nil,
+		},
+		http.StatusOK,
+	)
+
+	if r != nil {
+		switch r.StatusCode {
+		case http.StatusOK:
+			b, _ := helpers.ReadBody(r)
+
+			result := []*Issue{}
+
+			json.Unmarshal(b, &result)
+		case http.StatusNotFound:
+			return nil, NotFound
+		}
+	}
+
+	return nil, e
+}
+
+func (api *YouTrackAPI) CheckIssueExist(name string) (bool, error) {
+	res, e := api.MakeRequest(
+		&Request{
+			&url.Values{},
+			fmt.Sprintf("/rest/issue/%s/exists", strings.ToUpper(name)),
+			GET,
+			nil,
+			nil,
+		},
+		http.StatusOK,
+	)
+
+	if res != nil {
+		switch res.StatusCode {
+		case http.StatusOK:
+			return true, nil
+		case http.StatusNotFound:
+			return false, NotFound
+		}
+	}
+
+	return false, e
+}
+
+func (api *YouTrackAPI) GetListOfIssues(name string) (bool, error) {
+	res, e := api.MakeRequest(
+		&Request{
+			&url.Values{},
+			fmt.Sprintf("/rest/issue/%s/exists", strings.ToUpper(name)),
+			GET,
+			nil,
+			nil,
+		},
+		http.StatusOK,
+	)
+
+	if res != nil {
+		switch res.StatusCode {
+		case http.StatusOK:
+			return true, nil
+		case http.StatusNotFound:
+			return false, NotFound
+		}
+	}
+
+	return false, e
 }

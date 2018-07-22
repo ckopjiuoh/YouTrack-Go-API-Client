@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"fmt"
 )
 
 const (
@@ -58,7 +60,7 @@ func (c *YouTrackAPI) debugLog(context string, req *http.Request, res *http.Resp
 	}
 }
 
-func (api *YouTrackAPI) MakeRequest(request *Request) (*http.Response, error) {
+func (api *YouTrackAPI) MakeRequest(request *Request, expectedStatusCode int) (*http.Response, error) {
 	req, err := http.NewRequest(
 		request.Method,
 		api.Addr+request.Endpoint+request.QueryParams.Encode(),
@@ -83,6 +85,11 @@ func (api *YouTrackAPI) MakeRequest(request *Request) (*http.Response, error) {
 	if err != nil {
 		api.debugLog(err.Error(), req, res)
 		return nil, err
+	}
+
+	if res.StatusCode != expectedStatusCode {
+		api.debugLog(fmt.Sprintf("Expcted code is %d, but actual: %d", expectedStatusCode, res.StatusCode), req, res)
+		return res, fmt.Errorf("Expcted code is %d, but actual: %d", expectedStatusCode, res.StatusCode)
 	}
 
 	api.debugLog("Success", req, res)
