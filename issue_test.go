@@ -2,9 +2,29 @@ package ytapi
 
 import (
 	"net/http"
+	"os"
 	"reflect"
 	"testing"
 )
+
+var TestIssue = &Issue{
+	ID:       "Issue",
+	EntityID: "Issue",
+	JiraID:   "Issue",
+	Field: []Field{
+		Field{
+			Name:  "Field",
+			Value: "01",
+		},
+	},
+	Comment: nil,
+	Tag: []Tag{
+		Tag{
+			Value:    "Tag",
+			CSSClass: "Tag",
+		},
+	},
+}
 
 func TestIssue_GetValueByFieldName(t *testing.T) {
 	type fields struct {
@@ -25,7 +45,54 @@ func TestIssue_GetValueByFieldName(t *testing.T) {
 		want    interface{}
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{name: "Positive test",
+			fields: struct {
+				ID       string
+				EntityID string
+				JiraID   string
+				Field    []Field
+				Comment  []interface{}
+				Tag      []Tag
+			}{ID: "Issue",
+				EntityID: "Issue",
+				JiraID:   "Issue",
+				Field: []Field{
+					Field{
+						Name:  "Field",
+						Value: "01",
+					},
+				},
+				Comment: nil,
+				Tag: []Tag{
+					Tag{
+						Value:    "Tag",
+						CSSClass: "Tag",
+					},
+				}}, args: struct{ name string }{name: "Field"}, want: "01", wantErr: false},
+		{name: "Negative test",
+			fields: struct {
+				ID       string
+				EntityID string
+				JiraID   string
+				Field    []Field
+				Comment  []interface{}
+				Tag      []Tag
+			}{ID: "Issue",
+				EntityID: "Issue",
+				JiraID:   "Issue",
+				Field: []Field{
+					Field{
+						Name:  "Field",
+						Value: "01",
+					},
+				},
+				Comment: nil,
+				Tag: []Tag{
+					Tag{
+						Value:    "Tag",
+						CSSClass: "Tag",
+					},
+				}}, args: struct{ name string }{name: "FieldTwo"}, wantErr: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -63,7 +130,54 @@ func TestIssue_GetID(t *testing.T) {
 		fields fields
 		want   string
 	}{
-		// TODO: Add test cases.
+		{name: "Positive test",
+			fields: struct {
+				ID       string
+				EntityID string
+				JiraID   string
+				Field    []Field
+				Comment  []interface{}
+				Tag      []Tag
+			}{ID: "YouTrack issue",
+				EntityID: "Issue",
+				JiraID:   "Issue",
+				Field: []Field{
+					Field{
+						Name:  "Field",
+						Value: "01",
+					},
+				},
+				Comment: nil,
+				Tag: []Tag{
+					Tag{
+						Value:    "Tag",
+						CSSClass: "Tag",
+					},
+				}}, want: "YouTrack issue"},
+		{name: "Positive test empty field",
+			fields: struct {
+				ID       string
+				EntityID string
+				JiraID   string
+				Field    []Field
+				Comment  []interface{}
+				Tag      []Tag
+			}{ID: "",
+				EntityID: "Issue",
+				JiraID:   "Issue",
+				Field: []Field{
+					Field{
+						Name:  "Field",
+						Value: "01",
+					},
+				},
+				Comment: nil,
+				Tag: []Tag{
+					Tag{
+						Value:    "Tag",
+						CSSClass: "Tag",
+					},
+				}}, want: ""},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -96,7 +210,54 @@ func TestIssue_GetEntityID(t *testing.T) {
 		fields fields
 		want   string
 	}{
-		// TODO: Add test cases.
+		{name: "Positive test",
+			fields: struct {
+				ID       string
+				EntityID string
+				JiraID   string
+				Field    []Field
+				Comment  []interface{}
+				Tag      []Tag
+			}{ID: "YouTrack issue",
+				EntityID: "YouTrack issue",
+				JiraID:   "Issue",
+				Field: []Field{
+					Field{
+						Name:  "Field",
+						Value: "01",
+					},
+				},
+				Comment: nil,
+				Tag: []Tag{
+					Tag{
+						Value:    "Tag",
+						CSSClass: "Tag",
+					},
+				}}, want: "YouTrack issue"},
+		{name: "Positive test empty field",
+			fields: struct {
+				ID       string
+				EntityID string
+				JiraID   string
+				Field    []Field
+				Comment  []interface{}
+				Tag      []Tag
+			}{ID: "YouTrack issue",
+				EntityID: "",
+				JiraID:   "Issue",
+				Field: []Field{
+					Field{
+						Name:  "Field",
+						Value: "01",
+					},
+				},
+				Comment: nil,
+				Tag: []Tag{
+					Tag{
+						Value:    "Tag",
+						CSSClass: "Tag",
+					},
+				}}, want: ""},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -130,7 +291,78 @@ func TestIssue_GetProjectShortName(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{name: "Positive test",
+			fields: struct {
+				ID       string
+				EntityID string
+				JiraID   string
+				Field    []Field
+				Comment  []interface{}
+				Tag      []Tag
+			}{ID: "YouTrack issue",
+				EntityID: "YouTrack issue",
+				JiraID:   "Issue",
+				Field: []Field{
+					Field{
+						Name:  "projectShortName",
+						Value: "project",
+					},
+				},
+				Comment: nil,
+				Tag: []Tag{
+					Tag{
+						Value:    "Tag",
+						CSSClass: "Tag",
+					},
+				}}, want: "project", wantErr: false},
+		{name: "Positive test EmptyField",
+			fields: struct {
+				ID       string
+				EntityID string
+				JiraID   string
+				Field    []Field
+				Comment  []interface{}
+				Tag      []Tag
+			}{ID: "YouTrack issue",
+				EntityID: "YouTrack issue",
+				JiraID:   "Issue",
+				Field: []Field{
+					Field{
+						Name:  "projectShortName",
+						Value: "01",
+					},
+				},
+				Comment: nil,
+				Tag: []Tag{
+					Tag{
+						Value:    "Tag",
+						CSSClass: "Tag",
+					},
+				}}, want: "01", wantErr: false},
+		{name: "Negative test",
+			fields: struct {
+				ID       string
+				EntityID string
+				JiraID   string
+				Field    []Field
+				Comment  []interface{}
+				Tag      []Tag
+			}{ID: "YouTrack issue",
+				EntityID: "YouTrack issue",
+				JiraID:   "Issue",
+				Field: []Field{
+					Field{
+						Name:  "Field",
+						Value: "project",
+					},
+				},
+				Comment: nil,
+				Tag: []Tag{
+					Tag{
+						Value:    "Tag",
+						CSSClass: "Tag",
+					},
+				}}, wantErr: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -169,7 +401,54 @@ func TestIssue_GetNumberInProject(t *testing.T) {
 		want    int
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{name: "Positive test",
+			fields: struct {
+				ID       string
+				EntityID string
+				JiraID   string
+				Field    []Field
+				Comment  []interface{}
+				Tag      []Tag
+			}{ID: "YouTrack issue",
+				EntityID: "YouTrack issue",
+				JiraID:   "Issue",
+				Field: []Field{
+					Field{
+						Name:  "numberInProject",
+						Value: "01",
+					},
+				},
+				Comment: nil,
+				Tag: []Tag{
+					Tag{
+						Value:    "Tag",
+						CSSClass: "Tag",
+					},
+				}}, want: 1},
+		{name: "Negative test",
+			fields: struct {
+				ID       string
+				EntityID string
+				JiraID   string
+				Field    []Field
+				Comment  []interface{}
+				Tag      []Tag
+			}{ID: "YouTrack issue",
+				EntityID: "YouTrack issue",
+				JiraID:   "Issue",
+				Field: []Field{
+					Field{
+						Name:  "numberInProject",
+						Value: "something",
+					},
+				},
+				Comment: nil,
+				Tag: []Tag{
+					Tag{
+						Value:    "Tag",
+						CSSClass: "Tag",
+					},
+				}}, wantErr: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -208,7 +487,54 @@ func TestIssue_GetSummary(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{name: "Positive test",
+			fields: struct {
+				ID       string
+				EntityID string
+				JiraID   string
+				Field    []Field
+				Comment  []interface{}
+				Tag      []Tag
+			}{ID: "YouTrack issue",
+				EntityID: "YouTrack issue",
+				JiraID:   "Issue",
+				Field: []Field{
+					Field{
+						Name:  "summary",
+						Value: "01",
+					},
+				},
+				Comment: nil,
+				Tag: []Tag{
+					Tag{
+						Value:    "Tag",
+						CSSClass: "Tag",
+					},
+				}}, want: "01"},
+		{name: "Negative test",
+			fields: struct {
+				ID       string
+				EntityID string
+				JiraID   string
+				Field    []Field
+				Comment  []interface{}
+				Tag      []Tag
+			}{ID: "YouTrack issue",
+				EntityID: "YouTrack issue",
+				JiraID:   "Issue",
+				Field: []Field{
+					Field{
+						Name:  "sumary",
+						Value: "01",
+					},
+				},
+				Comment: nil,
+				Tag: []Tag{
+					Tag{
+						Value:    "Tag",
+						CSSClass: "Tag",
+					},
+				}}, wantErr: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -247,7 +573,54 @@ func TestIssue_GetDescription(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{name: "Positive test",
+			fields: struct {
+				ID       string
+				EntityID string
+				JiraID   string
+				Field    []Field
+				Comment  []interface{}
+				Tag      []Tag
+			}{ID: "YouTrack issue",
+				EntityID: "YouTrack issue",
+				JiraID:   "Issue",
+				Field: []Field{
+					Field{
+						Name:  "description",
+						Value: "01",
+					},
+				},
+				Comment: nil,
+				Tag: []Tag{
+					Tag{
+						Value:    "Tag",
+						CSSClass: "Tag",
+					},
+				}}, want: "01"},
+		{name: "Negative test",
+			fields: struct {
+				ID       string
+				EntityID string
+				JiraID   string
+				Field    []Field
+				Comment  []interface{}
+				Tag      []Tag
+			}{ID: "YouTrack issue",
+				EntityID: "YouTrack issue",
+				JiraID:   "Issue",
+				Field: []Field{
+					Field{
+						Name:  "summary",
+						Value: "01",
+					},
+				},
+				Comment: nil,
+				Tag: []Tag{
+					Tag{
+						Value:    "Tag",
+						CSSClass: "Tag",
+					},
+				}}, wantErr: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -266,6 +639,160 @@ func TestIssue_GetDescription(t *testing.T) {
 			}
 			if got != tt.want {
 				t.Errorf("Issue.GetDescription() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestYouTrackAPI_CreateIssue(t *testing.T) {
+	type fields struct {
+		Token  string
+		Addr   string
+		Debug  bool
+		Client *http.Client
+	}
+	type args struct {
+		project        string
+		summary        string
+		description    string
+		permittedGroup string
+		attachments    []os.File
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			api := &YouTrackAPI{
+				Token:  tt.fields.Token,
+				Addr:   tt.fields.Addr,
+				Debug:  tt.fields.Debug,
+				Client: tt.fields.Client,
+			}
+			if err := api.CreateIssue(tt.args.project, tt.args.summary, tt.args.description, tt.args.permittedGroup, tt.args.attachments); (err != nil) != tt.wantErr {
+				t.Errorf("YouTrackAPI.CreateIssue(%v, %v, %v, %v, %v) error = %v, wantErr %v", tt.args.project, tt.args.summary, tt.args.description, tt.args.permittedGroup, tt.args.attachments, err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestYouTrackAPI_GetIssueHistory(t *testing.T) {
+	type fields struct {
+		Token  string
+		Addr   string
+		Debug  bool
+		Client *http.Client
+	}
+	type args struct {
+		name string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    []*Issue
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			api := &YouTrackAPI{
+				Token:  tt.fields.Token,
+				Addr:   tt.fields.Addr,
+				Debug:  tt.fields.Debug,
+				Client: tt.fields.Client,
+			}
+			got, err := api.GetIssueHistory(tt.args.name)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("YouTrackAPI.GetIssueHistory(%v) error = %v, wantErr %v", tt.args.name, err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("YouTrackAPI.GetIssueHistory(%v) = %v, want %v", tt.args.name, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestYouTrackAPI_CheckIssueExist(t *testing.T) {
+	type fields struct {
+		Token  string
+		Addr   string
+		Debug  bool
+		Client *http.Client
+	}
+	type args struct {
+		name string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    bool
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			api := &YouTrackAPI{
+				Token:  tt.fields.Token,
+				Addr:   tt.fields.Addr,
+				Debug:  tt.fields.Debug,
+				Client: tt.fields.Client,
+			}
+			got, err := api.CheckIssueExist(tt.args.name)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("YouTrackAPI.CheckIssueExist(%v) error = %v, wantErr %v", tt.args.name, err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("YouTrackAPI.CheckIssueExist(%v) = %v, want %v", tt.args.name, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestYouTrackAPI_GetListOfIssues(t *testing.T) {
+	type fields struct {
+		Token  string
+		Addr   string
+		Debug  bool
+		Client *http.Client
+	}
+	type args struct {
+		name string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    bool
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			api := &YouTrackAPI{
+				Token:  tt.fields.Token,
+				Addr:   tt.fields.Addr,
+				Debug:  tt.fields.Debug,
+				Client: tt.fields.Client,
+			}
+			got, err := api.GetListOfIssues(tt.args.name)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("YouTrackAPI.GetListOfIssues(%v) error = %v, wantErr %v", tt.args.name, err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("YouTrackAPI.GetListOfIssues(%v) = %v, want %v", tt.args.name, got, tt.want)
 			}
 		})
 	}

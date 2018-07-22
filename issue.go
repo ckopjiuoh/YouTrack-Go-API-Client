@@ -44,7 +44,7 @@ func (is *Issue) GetValueByFieldName(name string) (interface{}, error) {
 			return v.Value, nil
 		}
 	}
-	return nil, fmt.Errorf("can't find field: %s", name)
+	return nil, fmt.Errorf("field not found: %s", name)
 }
 
 func (is *Issue) GetID() string {
@@ -74,7 +74,7 @@ func (is *Issue) GetNumberInProject() (int, error) {
 }
 
 func (is *Issue) GetSummary() (string, error) {
-	p, err := is.GetValueByFieldName("ValueByFieldName")
+	p, err := is.GetValueByFieldName("Summary")
 	if err != nil {
 		return "", err
 	}
